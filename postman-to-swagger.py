@@ -294,36 +294,7 @@ class EnhancedSwaggerBuilder:
 
         paths[path][method] = operation
 
-    def _parse_url(self, url: Dict|str) -> Tuple[str, List]:
-        #Parse Postman URL naar OpenAPI path en parameters, inclusief path parameters
-        if isinstance(url, str):
-            parsed = urlparse(url)
-            path = parsed.path or '/unnamed_path'
-            query_params = self._parse_query_string(parsed.query)
-            path_params = self._extract_path_parameters(path)
-            return path, path_params + query_params
-
-        raw_path = '/' + '/'.join(url.get('path', []))
-        path = re.sub(r"{{(.*?)}}", r"{\1}", raw_path).rstrip('/')
-
-        
-        # Verwerk zowel query als path parameters
-        query_params = []
-        for param in url.get('query', []):
-            if not param.get('key') or not isinstance(param['key'], str):
-                continue
-            query_params.append({
-                "name": str(param['key']),
-                "in": "query",
-                "description": param.get('description', '') or 'No description',
-                "required": not param.get('disabled', False),
-                "schema": {"type": "string"}
-            })
-
-        path_params = self._extract_path_parameters(path)
-        return path, path_params + query_params
-
-    
+       
     
     def _parse_query_string(self, query: str) -> List:
         if not query:
