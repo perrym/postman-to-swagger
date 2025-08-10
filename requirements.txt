@@ -1,4 +1,0 @@
-PyYAML>=6.0.2
-colorama>=0.4.6; platform_system=="Windows"  
-typing-extensions>=4.12.2; python_version<"3.11" 
-
