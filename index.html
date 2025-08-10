@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta content="VvYq2k5BFp5dpIL6JpQhoe90sWEXZTEBbaynlEKCWRE" name="google-site-verification">
+  <title>Postman to Swagger Converter by Perry Mertens pamsniffer@gmail.com (C)2025</title>
+  <meta name="description" content="Convert Postman v2.1 collections to OpenAPI 3.0 (Swagger). Environment support, schema extraction, parameter de-duplication, and a tiny web server.">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <style>
+    :root { --pico-font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif; }
+    header.hero { padding: 3rem 0 1rem; }
+    .muted { color: var(--pico-muted-color); }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+    footer { margin-top: 4rem; font-size: .9rem; }
+    .chip { display:inline-block; border:1px solid var(--pico-primary); color:var(--pico-primary); padding:.2rem .5rem; border-radius:999px; font-size:.8rem; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <h1>Postman to Swagger Converter by Perry Mertens pamsniffer@gmail.com (C)2025</h1>
+      <p class="muted">Python script <strong>postman-to-swagger.py</strong> that converts a Postman v2.1 collection into an OpenAPI 3.0 (Swagger) spec.</p>
+      <p>
+        <span class="chip">OpenAPI 3.0</span>
+        <span class="chip">Postman v2.1</span>
+        <span class="chip">JSON &amp; YAML</span>
+        <span class="chip">Env support</span>
+      </p>
+    </header>
+
+    <section id="what-it-does">
+      <h2>What does it do?</h2>
+      <ul>
+        <li><strong>Converts</strong> a Postman <em>collection v2.1</em> to <em>OpenAPI 3.0</em> (JSON and/or YAML).</li>
+        <li><strong>Normalizes paths</strong>: turns <code>{{var}}</code> and <code>:id</code> into <code>{var}</code>, ensures a leading slash, removes trailing slashes.</li>
+        <li><strong>Promotes schemas</strong>: inline request/response bodies are moved to <code>#/components/schemas</code> with stable <code>$ref</code>s.</li>
+        <li><strong>De-duplicates parameters</strong>: removes duplicate query/header/path parameters; auto-adds missing path params.</li>
+        <li><strong>Type inference</strong> for query/header params based on examples (integer, number, boolean, string).</li>
+        <li><strong>Servers &amp; variables</strong>: base URL is derived from the collection; placeholders become server variables. With <code>--env</code>, defaults come from a Postman environment.</li>
+        <li><strong>Security</strong>: adds baseline <code>securitySchemes</code> (bearer/basic/apiKey/clientCredentials) and sets a global <code>security</code> block.</li>
+        <li><strong>Responses</strong>: reads Postman example responses (body + headers) and builds matching content types + schema/example.</li>
+        <li><strong>Mini web server</strong>: <code>--serve</code> spins up a lightweight local server for quick viewing.</li>
+        <li><strong>Zip export</strong>: optional <code>--zip</code> bundles JSON/YAML into a ZIP.</li>
+      </ul>
+    </section>
+
+    <section id="quickstart">
+      <h2>Quick start</h2>
+      <pre><code>python postman-to-swagger.py   --postman Collection.postman_collection.json   --env postmanenvironment.json   --output openapi   --json-only
+</code></pre>
+      <p>Result: <code>openapi.json</code>. Omit <code>--json-only</code> (and install PyYAML) to also get <code>openapi.yaml</code>.</p>
+    </section>
+
+    <section id="cli">
+      <h2>CLI options</h2>
+      <table>
+        <thead>
+          <tr><th>Option</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>--postman &lt;path&gt;</code></td><td>Required. Path to your Postman collection (v2.1) JSON.</td></tr>
+          <tr><td><code>--env &lt;path&gt;</code></td><td>Optional. Postman environment JSON. Enabled keys are used as defaults for same-named server variables (e.g., <code>token_host</code>).</td></tr>
+          <tr><td><code>--output &lt;name&gt;</code></td><td>Base filename without extension. Output will be <code>.json</code> and/or <code>.yaml</code>.</td></tr>
+          <tr><td><code>--json-only</code></td><td>Write JSON only.</td></tr>
+          <tr><td><code>--yaml-only</code></td><td>Write YAML only (requires PyYAML).</td></tr>
+          <tr><td><code>--open-ui</code></td><td>Opens the generated JSON file in your default browser (no Swagger UI).</td></tr>
+          <tr><td><code>--serve</code></td><td>Starts a small local web server at <code>http://localhost:8000</code>.</td></tr>
+          <tr><td><code>--zip</code></td><td>Creates a ZIP with generated files.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="environment">
+      <h2>Environment support</h2>
+      <p>Example <code>postmanenvironment.json</code>:</p>
+      <pre><code>{
+  "name": "NNRO TST",
+  "values": [
+    { "key": "token_host", "value": "api.example.com", "enabled": true },
+    { "key": "rt_external_host", "value": "edge.example.com", "enabled": true }
+  ]
+}
+</code></pre>
+      <p>If your collection contains server URLs with placeholders (e.g., <code>https://{token_host}</code>), enabled env values are applied as <code>servers[0].variables</code> defaults.</p>
+    </section>
+
+    <section id="workflows">
+      <h2>Example workflows</h2>
+      <h3>1) Convert &amp; launch local server</h3>
+      <pre><code>python postman-to-swagger.py   --postman Collection.postman_collection.json   --env postmanenvironment.json   --output openapi   --json-only   --serve
+</code></pre>
+      <p>Then open <code>http://localhost:8000/</code> and browse to your output file.</p>
+
+      <h3>2) Export per module</h3>
+      <p>Want separate specs per module (e.g., Policy/Claim)? Export each Postman subfolder as a separate collection and run the script per collection:</p>
+      <pre><code>python postman-to-swagger.py --postman Policy.postman_collection.json --output policy --json-only
+python postman-to-swagger.py --postman Claim.postman_collection.json  --output claim  --json-only
+</code></pre>
+    </section>
+
+    <section id="notes">
+      <h2>Notes &amp; limitations</h2>
+      <ul>
+        <li>Always export as <strong>Collection v2.1</strong> in Postman.</li>
+        <li><code>Accept</code>, <code>Content-Type</code> and <code>Authorization</code> are not emitted as regular header parameters (except where they belong to request/response content).</li>
+        <li>Schemas are inferred from examples where possible—double‑check complex payloads.</li>
+        <li>The included <code>securitySchemes</code> are generic; tailor them to your environment.</li>
+      </ul>
+    </section>
+
+    <section id="troubleshooting">
+      <h2>Troubleshooting</h2>
+      <ul>
+        <li><strong>“Invalid Postman structure”</strong> → Make sure you exported a <em>collection</em> (v2.1), not an environment.</li>
+        <li><strong>No server defaults</strong> → Pass <code>--env</code> and ensure the keys are <em>enabled</em>.</li>
+        <li><strong>Duplicate parameters</strong> → The script de-duplicates automatically and logs a warning.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p class="muted">License: MIT. © 2025 Perry Mertens pamsniffer@gmail.com</p>
+    </footer>
+  </main>
+</body>
+</html>
