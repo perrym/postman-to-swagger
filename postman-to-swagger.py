@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # APISCAN
 # 
 # Licensed under the AGPL-3.0 License. 
@@ -21,801 +22,492 @@
 # Usage:
 #   python postman-to-swagger_improved.py --postman collection.json --output openapi_output --both --open-ui --serve --zip
 #
+=======
+#######################################################
+# APISCAN - POSTMAN to SWAGGER converter              #
+# Licensed under the MIT License                      #
+# Author: Perry Mertens pamsniffer@gmail.com (c) 2025 #
+#######################################################
+from __future__ import annotations
+
+>>>>>>> e251021d3aa3bb4ce031599fb682af264ea80e5b
 import argparse
 import json
-import webbrowser
-import zipfile
-from http.server import SimpleHTTPRequestHandler, HTTPServer
-from pathlib import Path
-import threading
-import time
-from urllib.parse import urlparse
-from typing import Dict, List, Optional, Tuple, Any
+import logging
 import re
 import sys
+from collections import Counter
+from copy import deepcopy
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import urlsplit, urlparse, parse_qsl
 
-try:
-    from version import __version__ as PKG_VERSION
-except Exception:
-    PKG_VERSION = "1.0.0"
+# =====================================================
+# Postman → OpenAPI 3.0 converter (all-in-one edition)
+# - Variable resolution: collection → env → --var
+# - Server variables and/or --base-url override
+# - Strict mode for unresolved {{var}}
+# - Path normalization (/:id, {{var}} → {id})
+# - Query param merge (URL + Postman fields)
+# - SecuritySchemes detection (bearer/basic/x-api-key)
+# - Relaxed JSON parsing (strip comments; allow examples)
+# - Responses with examples from Postman "response" blocks
+# - Header parameter filtering (no Authorization/Content-Type)
+# - Parameter dedupe (by name+in)
+# - JSON and/or YAML output; optional validation
+# =====================================================
 
-HTTP_METHODS = {"get", "put", "post", "delete", "patch", "head", "options", "trace"}
-# ---------- pretty console ----------
-def styled_print(message: str, status: str = "info"):
-    symbols = {
-        "info": "[i]",
-        "ok": "[V]",
-        "warn": "[!]",
-        "fail": "[X]",
-        "run": "[->]",
-    }
-    colors = {
-        "info": "\033[94m",
-        "ok": "\033[92m",
-        "warn": "\033[93m",
-        "fail": "\033[91m",
-        "run": "\033[96m",
-    }
-    reset = "\033[0m"
-    print(f"{colors.get(status, '')}{symbols.get(status, '')} {message}{reset}")
+JSONLike = Dict[str, Any]
+PM_VAR = re.compile(r"{{\s*([A-Za-z0-9_.\-]+)\s*}}")
 
-# ---------- helpers ----------
-def replace_invalid_characters(text):
-    # Optionally normalize strings for OpenAPI compatibility
-    if not isinstance(text, str):
-        return text
-    return re.sub(r"[^\w\-\.\:\/\{\}\[\] ]+", "", text)
+SENSITIVE_HEADERS = {"authorization", "content-type"}
+HEADER_PARAM_DENYLIST = {"authorization"}  
 
-def dedupe_parameters(params, context):
-    seen = set()
-    out = []
-    dups = []
-    for p in params or []:
-        name = (p.get("name") or "").strip()
-        loc = (p.get("in") or "").strip()
-        key = (loc, name.lower() if loc == "header" else name)
-        if key in seen:
-            dups.append(name)
-            continue
-        seen.add(key)
-        out.append(p)
-    if dups:
-        print(f"[!] Warning: Duplicate parameters {dups} removed from {context}")
+def load_json(path: str | Path) -> JSONLike:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def strip_json_comments(s: str) -> str:
+    s = re.sub(r"(?m)//.*?$", "", s)
+    s = re.sub(r"/\*.*?\*/", "", s, flags=re.S)
+    return s
+
+def relaxed_json_parse(s: str) -> Tuple[Optional[Any], Optional[str]]:
+    """Try parsing JSON after removing comments and trivial trailing commas."""
+    raw = s
+    s = strip_json_comments(s)
+    s = re.sub(r",\s*([}\]])", r"\1", s)
+    try:
+        return json.loads(s), None
+    except Exception as e:
+        return None, f"{type(e).__name__}: {e}"
+
+def is_unresolved(s: str) -> bool:
+    return bool(PM_VAR.search(s or ""))
+
+def slug(s: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", (s or "").lower()).strip("_")
+
+@dataclass
+class VarContext:
+    coll: Dict[str, Any]
+    env: Dict[str, Any]
+    cli: Dict[str, Any]
+
+    def merged(self) -> Dict[str, Any]:
+        m: Dict[str, Any] = {}
+        m.update(self.coll or {})
+        m.update(self.env or {})
+        m.update(self.cli or {})
+        return m
+
+    def resolve(self, s: str) -> str:
+        if not isinstance(s, str):
+            return s
+        merged = self.merged()
+        def repl(m: re.Match) -> str:
+            key = m.group(1)
+            val = merged.get(key)
+            return str(val) if val is not None else m.group(0)
+        return PM_VAR.sub(repl, s)
+
+def vars_from_collection(coll: JSONLike) -> Dict[str, Any]:
+    out = {}
+    for v in (coll.get("variable") or []):
+        k = v.get("key") or v.get("id")
+        if k:
+            out[str(k)] = v.get("value")
     return out
 
-def process_openapi(doc):
-    paths = doc.get("paths", {})
-    for path, path_item in paths.items():
-        if not isinstance(path_item, dict):
-            continue
+def vars_from_env(env: Optional[JSONLike]) -> Dict[str, Any]:
+    out = {}
+    if not env:
+        return out
+    for v in (env.get("values") or []):
+        k = v.get("key")
+        if k and not v.get("disabled"):
+            out[str(k)] = v.get("value")
+    return out
 
-        if "parameters" in path_item:
-            path_item["parameters"] = dedupe_parameters(path_item["parameters"], f"PATH {path}")
+def normalize_path(raw_path: str) -> str:
+    raw_path = raw_path or "/"
+    # /:id → /{id}
+    def repl(m: re.Match) -> str:
+        return "/{%s}" % m.group(1)
+    p = re.sub(r"/:([A-Za-z0-9_]+)", repl, raw_path)
+    # {{var}} → {var}
+    p = p.replace("{{", "{").replace("}}", "}")
+    # collapse //
+    p = re.sub(r"//+", "/", p)
+    if not p.startswith("/"):
+        p = "/" + p
+    return p
 
-        for method, op in path_item.items():
-            if method.lower() not in HTTP_METHODS:
-                continue
-            if not isinstance(op, dict):
-                continue
-            if "parameters" in op:
-                op["parameters"] = dedupe_parameters(op["parameters"], f"{method.upper()} {path}")
+def json_to_schema(obj: Any) -> Dict[str, Any]:
+    if isinstance(obj, dict):
+        return {"type": "object", "properties": {k: json_to_schema(v) for k, v in obj.items()}}
+    if isinstance(obj, list):
+        return {"type": "array", "items": json_to_schema(obj[0]) if obj else {}}
+    if isinstance(obj, bool):
+        return {"type": "boolean"}
+    if isinstance(obj, (int, float)):
+        return {"type": "number"}
+    return {"type": "string"}
 
-    return doc
-
-def _infer_type(value: str) -> str:
-    # try to infer JSON Schema types from string examples
-    if value is None:
-        return "string"
-    v = str(value).strip().lower()
-    if v in {"true","false"}:
-        return "boolean"
-    try:
-        int(v)
-        return "integer"
-    except Exception:
-        pass
-    try:
-        float(v)
-        return "number"
-    except Exception:
-        pass
-    return "string"
-
-def _parse_bool(value: str) -> bool | None:
-    if value is None:
+def build_request_body(raw: Any) -> Optional[Dict[str, Any]]:
+    if raw is None:
         return None
-    v = str(value).strip().lower()
-    if v in {"true","1","yes","y"}:
-        return True
-    if v in {"false","0","no","n"}:
-        return False
+    if isinstance(raw, dict):
+        return {"content": {"application/json": {"schema": json_to_schema(raw), "example": raw}}}
+    if isinstance(raw, str):
+        data, err = relaxed_json_parse(raw)
+        if err is None and data is not None:
+            return {"content": {"application/json": {"schema": json_to_schema(data), "example": data}}}
+        return {"content": {"text/plain": {"schema": {"type": "string"}, "example": raw}}}
     return None
 
-def _detect_content_type_from_headers(headers: list) -> str:
-    if not isinstance(headers, list):
-        return "application/json"
-    for h in headers:
-        key = str(h.get("key","")).lower()
-        if key == "content-type":
-            return h.get("value","application/json") or "application/json"
-    return "application/json"
+def extract_query_params(url: str, pm_query_list: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+    u = urlsplit(url or "")
+    pairs = dict(parse_qsl(u.query, keep_blank_values=True))
+    for q in (pm_query_list or []):
+        if q.get("disabled"):
+            continue
+        k = q.get("key")
+        v = q.get("value", "")
+        if k:
+            pairs.setdefault(k, v)
+    out = []
+    for k, v in pairs.items():
+        out.append({
+            "name": str(k),
+            "in": "query",
+            "required": False,
+            "schema": {"type": "string"},
+            **({"example": v} if v is not None else {})
+        })
+    return out
 
-def _store_schema(schema: dict, components: dict) -> str:
-    import hashlib
-    schema_str = json.dumps(schema, sort_keys=True).encode("utf-8")
-    ref_name = "Schema_" + hashlib.sha1(schema_str).hexdigest()[:10]
-    components.setdefault("schemas", {})
-    if ref_name not in components["schemas"]:
-        components["schemas"][ref_name] = schema
-    return ref_name
+def extract_header_params(headers: List[Dict[str, str]]) -> List[Dict[str, Any]]:
+    params = []
+    for h in headers or []:
+        k = str(h.get("key",""))
+        v = h.get("value")
+        kl = k.lower()
+        if not k or kl in HEADER_PARAM_DENYLIST:
+            continue
+        params.append({
+            "name": k,
+            "in": "header",
+            "required": False,
+            "schema": {"type": "string"},
+            **({"example": v} if v is not None else {})
+        })
+    return params
 
-def enrich_description(summary: str, existing: str = "") -> str:
-    if existing and existing.strip().lower() != "no description available":
-        return existing
-    return f"This endpoint handles the action: '{summary}'. More details to be documented."
+def infer_security_from_headers(all_headers: List[Dict[str, str]]) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    schemes: Dict[str, Any] = {}
+    security: List[Dict[str, Any]] = []
+    low = [(h.get("key","").lower(), str(h.get("value","")).lower()) for h in (all_headers or [])]
+    if any(k == "authorization" and "bearer" in v for k, v in low):
+        schemes["bearerAuth"] = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
+        security.append({"bearerAuth": []})
+    if any(k == "authorization" and "basic" in v for k, v in low):
+        schemes["basicAuth"] = {"type": "http", "scheme": "basic"}
+        security.append({"basicAuth": []})
+    if any(k in {"x-api-key", "apikey", "api-key"} for k, v in low):
+        schemes["apiKeyHeader"] = {"type": "apiKey", "in": "header", "name": "x-api-key"}
+        security.append({"apiKeyHeader": []})
+    return schemes, security
 
-def apply_descriptions_to_operations(paths: dict) -> None:
-    for path, methods in paths.items():
-        for method, op in methods.items():
-            if not isinstance(op, dict):  # guard against non-objects
-                continue
-            summary = op.get("summary", "No summary")
-            op["description"] = enrich_description(summary, op.get("description", ""))
+def iter_items(items: List[JSONLike] | None):
+    for it in items or []:
+        if "item" in it:
+            yield from iter_items(it["item"])
+        elif "request" in it:
+            yield it
 
-def extract_inline_schemas(paths: dict, components: dict) -> None:
-    for path_item in paths.values():
-        for method in path_item.values():
-            if not isinstance(method, dict):
-                continue
-            if "requestBody" in method:
-                content = method["requestBody"].get("content", {})
-                for _, media_def in content.items():
-                    schema = media_def.get("schema")
-                    if schema and isinstance(schema, dict):
-                        ref_name = _store_schema(schema, components)
-                        media_def["schema"] = {"$ref": f"#/components/schemas/{ref_name}"}
-            for resp in method.get("responses", {}).values():
-                content = resp.get("content", {})
-                for _, media_def in content.items():
-                    schema = media_def.get("schema")
-                    if schema and isinstance(schema, dict):
-                        ref_name = _store_schema(schema, components)
-                        media_def["schema"] = {"$ref": f"#/components/schemas/{ref_name}"}
+def parse_request(it: JSONLike, ctx: VarContext) -> Dict[str, Any]:
+    req = it.get("request", {})
+    name = it.get("name") or req.get("name") or ""
+    method = (req.get("method") or "GET").upper()
 
-def normalize_tags(paths: dict) -> None:
-    for path_item in paths.values():
-        for method in path_item.values():
-            if not isinstance(method, dict):
-                continue
-            tags = method.get("tags", [])
-            if tags:
-                method["tags"] = [t.replace(" ", "_").replace("/", "_")[:40] for t in tags]
-            else:
-                method["tags"] = ["default"]
-
-def enhance_swagger(swagger_data: dict) -> dict:
-    paths = swagger_data.get("paths", {})
-    components = swagger_data.setdefault("components", {})
-    apply_descriptions_to_operations(paths)
-    extract_inline_schemas(paths, components)
-    normalize_tags(paths)
-    return swagger_data
-
-# ---------- main builder ----------
-class EnhancedSwaggerBuilder:
-    def __init__(self, postman_path: str):
-        self.postman_path = Path(postman_path)
-        self.postman_data = self._load_postman()
-        self.operation_ids = set()
-        self.path_counter = {}
-        self.parameter_tracker = {}
-        self.server_variables = {}
-        self.environment_data = None
-        
-    def load_environment_json(self, env_path: str):
-        """Load a Postman environment JSON and store in self.environment_data."""
-        if not env_path:
-            return
-        try:
-            with open(env_path, "r", encoding="utf-8") as f:
-                self.environment_data = json.load(f)
-            styled_print(f"[->] Loaded Postman environment: {env_path}", "info")
-        except Exception as e:
-            styled_print(f"[!] Failed to load environment: {e}", "fail")
-            self.environment_data = None
-
-
-    def _generate_unique_operation_id(self, name: str) -> str:
-        base_id = re.sub(r"[^a-zA-Z0-9_]", "_", name.lower())
-        if base_id not in self.operation_ids:
-            self.operation_ids.add(base_id)
-            return base_id
-        counter = 1
-        while f"{base_id}_{counter}" in self.operation_ids:
-            counter += 1
-        unique_id = f"{base_id}_{counter}"
-        self.operation_ids.add(unique_id)
-        return unique_id
-
-    def _load_postman(self) -> dict:
-        if not self.postman_path.exists():
-            raise FileNotFoundError(f"File not found: {self.postman_path}")
-        with open(self.postman_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        if "info" not in data or "item" not in data:
-            raise ValueError("Invalid Postman structure (missing 'info' or 'item')")
-        return data
-
-    @staticmethod
-    def _normalize_path(path: str) -> str:
-        # :id -> {id}; {{var}} -> {var}; ensure leading "/" and remove trailing "/"
-        path = re.sub(r":(\w+)", r"{\1}", path)
-        path = re.sub(r"{{(.*?)}}", r"{\1}", path)
-        if not path.startswith("/"):
-            path = "/" + path
-        if len(path) > 1 and path.endswith("/"):
-            path = path[:-1]
-        return path
-
-    def _get_base_url(self) -> str:
-        # 1) variable baseUrl if present
-        variables = self.postman_data.get("variable", [])
-        base_url = next((v.get("value") for v in variables if v.get("key") == "baseUrl"), "")
-
-        # 2) Try first request
-        if not base_url:
-            first_request = self._find_first_request(self.postman_data.get("item", []))
-            if first_request:
-                url = first_request.get("request", {}).get("url")
-                if isinstance(url, dict):
-                    scheme = url.get("protocol", "https")
-                    host = ".".join(url.get("host", [])) or ""
-                    base_url = f"{scheme}://{host}" if host else ""
-                elif isinstance(url, str):
-                    parsed = urlparse(url)
-                    scheme = parsed.scheme or "https"
-                    host = parsed.netloc or ""
-                    base_url = f"{scheme}://{host}" if host else ""
-
-        # 3) Replace Postman {{vars}} to OpenAPI {vars}
-        base_url = base_url.rstrip("/")
-        placeholders = re.findall(r"{{(.*?)}}", base_url)
-        if placeholders:
-            for name in placeholders:
-                base_url = base_url.replace("{{"+name+"}}", "{"+name+"}")
-            self.server_variables = {
-                name: {
-                    "default": f"example.{name}.com",
-                    "description": f"Variable '{name}' automatically generated"
-                } for name in placeholders
-            }
-        elif base_url:
-            self.server_variables = {
-                "baseUrl": {
-                    "default": base_url,
-                    "description": "Base server URL"
-                }
-            }
+    # URL building
+    raw_url = req.get("url")
+    pm_query_list = None
+    if isinstance(raw_url, str):
+        url_raw = ctx.resolve(raw_url)
+    elif isinstance(raw_url, dict):
+        if "raw" in raw_url and isinstance(raw_url["raw"], str):
+            url_raw = ctx.resolve(raw_url["raw"])
         else:
-            base_url = "https://api.example.com"
-            self.server_variables = {
-                "baseUrl": {
-                    "default": base_url,
-                    "description": "Default fallback URL"
-                }
-            }
-        return base_url
+            protocol = raw_url.get("protocol", "https")
+            host = raw_url.get("host")
+            path = raw_url.get("path")
+            port = raw_url.get("port")
+            host_str = ".".join(host) if isinstance(host, list) else (host or "")
+            path_str = "/".join(path) if isinstance(path, list) else (path or "")
+            if port:
+                host_str = f"{host_str}:{port}"
+            url_raw = f"{protocol}://{host_str}/{path_str}".rstrip("/")
+            url_raw = ctx.resolve(url_raw)
+        pm_query_list = raw_url.get("query") if isinstance(raw_url, dict) else None
+    else:
+        url_raw = ""
 
-    def convert_to_swagger(self) -> dict:
-        """
-        Build an OpenAPI 3.0 document from the loaded Postman collection.
+    # Headers
+    headers = []
+    for h in (req.get("header") or []):
+        if h.get("disabled"):
+            continue
+        key = ctx.resolve(h.get("key",""))
+        val = ctx.resolve(h.get("value",""))
+        if key:
+            headers.append({"key": key, "value": val})
 
-        - Uses self._get_base_url() to determine the primary server URL.
-        - Adds server variables ONLY when the server URL actually contains {placeholders}.
-        - If a Postman environment is loaded (self.environment_data), use its values
-          as defaults for matching server variables.
-        - Extracts securitySchemes and global security defaults.
-        - Fills paths via self._process_items().
-        """
-        base_url = self._get_base_url()
+    # Auth → header mapping
+    auth = req.get("auth")
+    if isinstance(auth, dict) and "type" in auth:
+        t = auth.get("type")
+        a = auth.get(t) if t else None
+        if isinstance(a, list):
+            kv = {i.get("key"): i.get("value") for i in a if isinstance(i, dict)}
+            if t == "bearer" and "token" in kv:
+                headers.append({"key": "Authorization", "value": f"Bearer {ctx.resolve(kv['token'])}"})
+            if t == "apikey" and {"key","value","in"} <= set(kv):
+                if kv["in"] == "header":
+                    headers.append({"key": ctx.resolve(kv["key"]), "value": ctx.resolve(kv["value"])})
+            if t == "basic" and {"username","password"} <= set(kv):
+                import base64
+                token = base64.b64encode(f"{kv['username']}:{kv['password']}".encode()).decode()
+                headers.append({"key":"Authorization","value":f"Basic {token}"})
 
-        # Server-object opbouwen; variables alleen toevoegen als er placeholders in de URL zitten.
-        server_obj = {"url": base_url}
-        try:
-            has_placeholders = bool(re.search(r"{[^}]+}", base_url))
-        except Exception:
-            has_placeholders = False
-
-        if has_placeholders and self.server_variables:
-            # Defaults vullen vanuit Postman environment (alleen enabled waarden)
-            if getattr(self, "environment_data", None):
-                try:
-                    env_values = {
-                        str(v.get("key")): v.get("value")
-                        for v in self.environment_data.get("values", [])
-                        if v.get("enabled", True) and v.get("key")
-                    }
-                except Exception:
-                    env_values = {}
-                # Koppel env defaults aan gelijknamige server-variables
-                for var_name in list(self.server_variables.keys()):
-                    if var_name in env_values and env_values[var_name] not in (None, ""):
-                        self.server_variables[var_name]["default"] = env_values[var_name]
-
-            server_obj["variables"] = self.server_variables
-
-        # Info/description veilig uit Postman trekken
-        info_obj = self.postman_data.get("info", {}) or {}
-        desc = info_obj.get("description", "")
-        if isinstance(desc, dict):  # sommige exports hebben object i.p.v. string
-            desc = desc.get("content", "") or ""
-
-        swagger = {
-            "openapi": "3.0.0",
-            "info": {
-                "title": info_obj.get("name", "Converted from Postman"),
-                "version": PKG_VERSION,
-                "description": desc,
-                "contact": {
-                    "name": "API Support",
-                    "email": "support@example.com",
-                    "url": "https://example.com/contact"
-                }
-            },
-            "externalDocs": {
-                "description": "Full documentation",
-                "url": "https://example.com/docs"
-            },
-            "tags": [
-                {"name": "default", "description": "General API endpoints"}
-            ],
-            "servers": [server_obj],
-            "paths": {},
-            "components": {
-                "securitySchemes": self._extract_auth_schemes()
-            },
-            # Let op: root-level security geldt voor alle operations.
-            "security": self._build_security_blocks()
-        }
-
-        # Paths vullen vanuit de Postman items
-        self._process_items(self.postman_data.get("item", []), swagger["paths"])
-
-        return swagger
-
-
-    def _parse_url(self, url: Dict|str) -> Tuple[str, List[Dict]]:
-        if isinstance(url, str):
-            parsed = urlparse(url)
-            path = parsed.path or "/unnamed_path"
-            path = self._normalize_path(path)
-            params = self._parse_query_string(parsed.query)
-            path_params = self._extract_path_parameters(path)
-            return path, path_params + params
-
-        raw_path = "/" + "/".join(url.get("path", ["unnamed_path"]))
-        path = self._normalize_path(raw_path)
-
-        query_params = []
-        for param in url.get("query", []):
-            key = param.get("key")
-            if not key or not isinstance(key, str):
-                continue
-            example = param.get("value")
-            schema_type = _infer_type(example if example is not None else "")
-            query_params.append({
-                "name": str(key),
-                "in": "query",
-                "description": param.get("description", "") or "No description",
-                "required": False,  # safer default
-                "schema": {"type": schema_type},
-                **({"example": example} if example is not None else {})
-            })
-
-        path_params = self._extract_path_parameters(path)
-        return path, path_params + query_params
-
-        
-    def _extract_path_parameters(self, path: str) -> List[Dict]:
-        return [
-            {
-                "name": name,
-                "in": "path",
-                "required": True,
-                "schema": {"type": "string"},
-                "description": f"URL path parameter {name}"
-            }
-            for name in sorted(set(re.findall(r"{(.*?)}", path)))
-        ]
-
-    def _find_first_request(self, items):
-        for item in items:
-            if "item" in item:
-                found = self._find_first_request(item["item"])
-                if found:
-                    return found
-            elif "request" in item:
-                return item
-        return None
-
-    def _extract_auth_schemes(self) -> Dict:
-        return {
-            "bearerAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"},
-            "basicAuth": {"type": "http", "scheme": "basic"},
-            "apiKeyAuth": {"type": "apiKey", "in": "header", "name": "X-API-Key"},
-            "clientCredentials": {
-                "type": "oauth2",
-                "flows": {
-                    "clientCredentials": {
-                        "tokenUrl": "https://example.com/oauth/token",
-                        "scopes": {"read": "Read access", "write": "Write access"}
-                    }
-                }
-            }
-        }
-
-    def _build_security_blocks(self) -> List[Dict]:
-        return [
-            {"bearerAuth": []},
-            {"basicAuth": []},
-            {"apiKeyAuth": []},
-            {"clientCredentials": ["read", "write"]},
-        ]
-
-    def _process_items(self, items: List, paths: Dict, current_folder: str = "") -> None:
-        for item in items:
-            if "item" in item:  # folder
-                self._process_items(item["item"], paths, current_folder=item.get("name",""))
-            else:
-                self._add_request_to_paths(item, paths, current_folder)
-
-    def _add_request_to_paths(self, item: Dict, paths: Dict, current_folder: str = "") -> None:
-        request = item.get("request", {})
-        if not request:
-            return
-
-        method = request.get("method", "GET").lower()
-        url = request.get("url")
-        if not url:
-            return
-
-        path, parameters = self._parse_url(url)
-        if not path or path == "/":
-            path = "/unnamed_path"
-            styled_print(f"Empty path found, replaced with {path}", "warn")
-
-        # Track usage
-        self.path_counter[path] = self.path_counter.get(path, 0) + 1
-
-        if path not in paths:
-            paths[path] = {}
-
-        # header params (skip content-type, authorization, accept)
-        header_params = []
-        for h in request.get("header", []):
-            k = str(h.get("key","")).strip()
-            if not k:
-                continue
-            kl = k.lower()
-            if kl in {"content-type", "authorization", "accept"}:
-                continue
-            example = h.get("value")
-            header_params.append({
-                "name": k,
-                "in": "header",
-                "required": False,
-                "schema": {"type": _infer_type(example if example is not None else "")},
-                **({"example": example} if example is not None else {})
-            })
-
-        # merge + validate
-        parameters = self._validate_and_deduplicate_parameters(path, method, parameters + header_params)
-
-        operation = {
-            "summary": item.get("name", "Unnamed endpoint") or "Unnamed endpoint",
-            "description": request.get("description", "") or "No description available",
-            "parameters": parameters,
-            "tags": [ (current_folder or item.get("name","default")).replace(" ", "_")[:40] ],
-            "operationId": self._generate_unique_operation_id(item.get("name", f"{method}_{path}")),
-            "responses": self._parse_responses(item, request)
-        }
-
-        if method != "get":
-            body = self._parse_request_body(request)
-            if body:
-                operation["requestBody"] = body
-
-        paths[path][method] = operation
-
-        
-        
-    def _parse_query_string(self, query: str) -> List[Dict]:
-        if not query:
-            return []
-        params = []
-        for pair in query.split("&"):
-            if "=" in pair:
-                key, value = pair.split("=", 1)
-                params.append({
-                    "name": key,
-                    "in": "query",
-                    "schema": {"type": _infer_type(value)},
-                    **({"example": value} if value != "" else {})
-                })
-        return params
-
-    def _parse_request_body(self, request: Dict) -> Optional[Dict]:
-        body = request.get("body")
-        if not body:
-            return None
-
-        # content-type from headers, default json
-        content_type = _detect_content_type_from_headers(request.get("header", []))
-
+    # Body
+    body = req.get("body")
+    body_mode = None
+    body_payload: Any = None
+    if isinstance(body, dict) and not body.get("disabled"):
         mode = body.get("mode")
+        body_mode = mode
         if mode == "raw":
-            raw = body.get("raw", "")
-            # Try JSON first
-            try:
-                json_body = json.loads(raw) if isinstance(raw, str) else raw
-                return {"content": {content_type: {"schema": self._json_to_schema(json_body)}}}
-            except Exception:
-                # keep as string example
-                return {"content": {content_type: {"schema": {"type": "string"}, "example": raw}}}
-
-        if mode == "urlencoded":
-            props = {}
-            required = []
-            for f in body.get("urlencoded", []):
-                key = f.get("key")
-                if not key:
+            raw = body.get("raw")
+            if isinstance(raw, str):
+                body_payload = ctx.resolve(raw)
+        elif mode == "urlencoded":
+            data = {}
+            for p in body.get("urlencoded", []):
+                if p.get("disabled"):
                     continue
-                example = f.get("value")
-                props[key] = {"type": _infer_type(example if example is not None else "")}
-                if example is not None:
-                    props[key]["example"] = example
-                if not f.get("disabled", False):
-                    required.append(key)
-            schema = {"type": "object", "properties": props}
-            if required:
-                schema["required"] = required
-            return {"content": {"application/x-www-form-urlencoded": {"schema": schema}}}
-
-        if mode == "formdata":
-            props = {}
-            required = []
-            for f in body.get("formdata", []):
-                key = f.get("key")
-                if not key:
+                k = ctx.resolve(p.get("key",""))
+                v = ctx.resolve(p.get("value",""))
+                if k: data[k] = v
+            body_payload = data
+            body_mode = "form"
+        elif mode == "formdata":
+            data = {}
+            for p in body.get("formdata", []):
+                if p.get("disabled"):
                     continue
-                example = f.get("value")
-                props[key] = {"type": _infer_type(example if example is not None else "")}
-                if example is not None:
-                    props[key]["example"] = example
-                if not f.get("disabled", False):
-                    required.append(key)
-            schema = {"type": "object", "properties": props}
-            if required:
-                schema["required"] = required
-            return {"content": {"multipart/form-data": {"schema": schema}}}
+                k = ctx.resolve(p.get("key",""))
+                v = ctx.resolve(p.get("value",""))
+                if k: data[k] = v
+            body_payload = data
+            body_mode = "form"
 
-        return None
+    # Query params
+    qparams = extract_query_params(url_raw, pm_query_list)
 
-    def _json_to_schema(self, data: Any) -> Dict:
-        if isinstance(data, dict):
-            properties = {}
-            required = []
-            for k, v in data.items():
-                properties[k] = self._json_to_schema(v)
-                if v is not None:
-                    required.append(k)
-            schema = {"type": "object", "properties": properties}
-            if required:
-                schema["required"] = required
-            return schema
-        elif isinstance(data, list):
-            if data:
-                return {"type": "array", "items": self._json_to_schema(data[0])}
+    # Responses from Postman (if present)
+    oas_responses: Dict[str, Any] = {}
+    for resp in it.get("response", []) or []:
+        try:
+            code = str(resp.get("code") or "200")
+            desc = resp.get("status") or "OK"
+            body_text = resp.get("body")
+            if isinstance(body_text, str):
+                data, err = relaxed_json_parse(body_text)
+                if err is None and data is not None:
+                    oas_responses[code] = {
+                        "description": desc,
+                        "content": {"application/json": {"schema": json_to_schema(data), "example": data}}
+                    }
+                else:
+                    oas_responses[code] = {
+                        "description": desc,
+                        "content": {"text/plain": {"schema": {"type": "string"}, "example": body_text}}
+                    }
             else:
-                return {"type": "array", "items": {"type": "string", "description": "Example: empty list"}}
-        else:
-            py_type = type(data).__name__
-            type_map = {"str": "string", "int": "integer", "float": "number", "bool": "boolean", "NoneType": "string"}
-            return {"type": type_map.get(py_type, "string")}
-
-    def _parse_responses(self, item: Dict, request: Dict) -> Dict:
-        # defaults als fallback
-        responses = {
-            "200": {
-                "description": "Successful operation",
-                "content": {"application/json": {"example": {"status": "success"}}}
-            },
-            "400": {
-                "description": "Invalid input",
-                "content": {"application/json": {"example": {"error": "Invalid input"}}}
-            },
-            "500": {
-                "description": "Server error",
-                "content": {"application/json": {"example": {"error": "Internal server error"}}}
-            }
-        }
-
-        # Postman v2.1 bewaart responses als sibling van request: item["response"] (list)
-        examples = item.get("response", []) or []
-        for example in examples:
-            code = str(example.get("code", "200"))
-
-            # Content-Type uit response headers bepalen
-            headers = example.get("header", [])
-            ctype = _detect_content_type_from_headers(headers)
-
-            # Body kan string (JSON of plain text) of al dict/list zijn
-            body = example.get("body")
-            payload = None
-            if isinstance(body, (dict, list)):
-                payload = body
-            elif isinstance(body, str):
-                try:
-                    payload = json.loads(body)
-                except Exception:
-                    payload = body  # plain text
-
-            # Response entry aanmaken of aanvullen
-            if code not in responses:
-                responses[code] = {
-                    "description": example.get("name", "Example response") or "No description",
-                    "content": {}
-                }
-
-            # Schema + example invullen
-            if isinstance(payload, (dict, list)):
-                schema = self._json_to_schema(payload)
-                responses[code].setdefault("content", {}).setdefault(ctype, {})["schema"] = schema
-                responses[code]["content"][ctype]["example"] = payload
-            else:
-                responses[code].setdefault("content", {}).setdefault(ctype, {})["schema"] = {"type": "string"}
-                responses[code]["content"][ctype]["example"] = payload
-
-        return responses
-
-
-    def _validate_and_deduplicate_parameters(self, path: str, method: str, parameters: List[Dict]) -> List[Dict]:
-        unique_params = []
-        seen_params = set()
-        duplicates = []
-
-        for param in parameters:
-            pname = param.get("name")
-            pin = param.get("in")
-            if not pname or not pin:
-                continue
-            key = (pname.lower(), pin)
-            if key in seen_params:
-                duplicates.append(pname)
-                continue
-            seen_params.add(key)
-            unique_params.append(param)
-
-        if duplicates:
-            styled_print(f"Warning: Duplicate parameters {duplicates} removed from {method.upper()} {path}", "warn")
-
-        # ensure all path placeholders are defined
-        url_placeholders = set(re.findall(r"{(.*?)}", path))
-        defined = set(p["name"] for p in unique_params if p.get("in") == "path")
-        missing = url_placeholders - defined
-        for name in sorted(missing):
-            unique_params.append({
-                "name": name,
-                "in": "path",
-                "required": True,
-                "schema": {"type": "string"},
-                "description": f"Auto-generated path parameter {name}"
-            })
-            styled_print(f"Warning: Missing path parameter '{name}' added to {method.upper()} {path}", "warn")
-
-        return unique_params
-
-# ---------- server & zip utils ----------
-def serve_file(path: Path, port: int = 8000):
-    class CustomHandler(SimpleHTTPRequestHandler):
-        def log_message(self, format, *args):
+                oas_responses[code] = {"description": desc}
+        except Exception:
             pass
-    def start_server():
-        httpd = HTTPServer(("localhost", port), CustomHandler)
-        styled_print(f"Start tijdelijke webserver op http://localhost:{port}/", "info")
-        webbrowser.open(f"http://localhost:{port}/{path.name}")
-        httpd.serve_forever()
-    threading.Thread(target=start_server, daemon=True).start()
-    time.sleep(2)
 
-def zip_output(swagger_path: Path) -> Path:
-    zip_path = swagger_path.with_suffix(".zip")
-    with zipfile.ZipFile(zip_path, "w") as zipf:
-        zipf.write(swagger_path, arcname=swagger_path.name)
-        yaml_path = swagger_path.with_suffix(".yaml")
-        if yaml_path.exists():
-            zipf.write(yaml_path, arcname=yaml_path.name)
-    return zip_path
+    return {
+        "name": name,
+        "method": method,
+        "url": url_raw,
+        "headers": headers,
+        "qparams": qparams,
+        "body": body_payload,
+        "body_mode": body_mode,
+        "tag": it.get("name") or "postman",
+        "responses": oas_responses,
+    }
 
-# ---------- CLI ----------
+def collect_requests(coll: JSONLike, ctx: VarContext, folder_filter: Optional[str]) -> List[Dict[str, Any]]:
+    items = coll.get("item", [])
+    if folder_filter:
+        picked = []
+        for it in items:
+            if folder_filter.lower() in (it.get("name","").lower()):
+                picked.append(it)
+        items = picked or items
+    out = []
+    for it in iter_items(items):
+        out.append(parse_request(it, ctx))
+    return out
+
+def detect_base_url(rows: List[Dict[str, Any]]) -> str:
+    hosts = [f"{urlsplit(r['url']).scheme}://{urlsplit(r['url']).netloc}" for r in rows if r.get("url")]
+    if not hosts:
+        return "https://api.example.com"
+    return Counter(hosts).most_common(1)[0][0]
+
+def build_spec(rows: List[Dict[str, Any]], base_url: str, strict: bool) -> Dict[str, Any]:
+    all_headers = []
+    for r in rows:
+        all_headers.extend(r.get("headers") or [])
+    schemes, security = infer_security_from_headers(all_headers)
+
+    paths: Dict[str, Any] = {}
+    for r in rows:
+        u = urlsplit(r["url"] or "")
+        raw_path = u.path or "/"
+        path = normalize_path(raw_path)
+        method = r["method"].lower()
+
+        if strict and (is_unresolved(r["url"]) or is_unresolved(path)):
+            raise ValueError(f"Unresolved variable in URL/path: {r['url']}")
+        params = []
+        params.extend(r.get("qparams") or [])
+        params.extend(extract_header_params(r.get("headers") or []))
+        ded = {}
+        for p in params:
+            ded[(p["name"], p["in"])] = p
+        params = list(ded.values())
+
+        op = {
+            "operationId": f"{slug(r.get('tag'))}_{method}_{slug(path)}",
+            "tags": [r.get("tag") or "postman"],
+            "parameters": params,
+            "responses": r.get("responses") or {
+                "200": {"description": "OK"},
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"},
+            },
+        }
+        rb = build_request_body(r.get("body"))
+        if rb:
+            op["requestBody"] = rb
+
+        paths.setdefault(path, {})
+        if method in paths[path]:
+            prev = paths[path][method]
+            prev["tags"] = sorted(set((prev.get("tags") or []) + (op.get("tags") or [])))
+            pmap = {(p["name"], p["in"]): p for p in prev.get("parameters", [])}
+            for p in op.get("parameters", []):
+                pmap[(p["name"], p["in"])] = p
+            prev["parameters"] = list(pmap.values())
+           
+            if "requestBody" not in prev and "requestBody" in op:
+                prev["requestBody"] = op["requestBody"]
+            
+            for code, resp in (op.get("responses") or {}).items():
+                prev.setdefault("responses", {}).setdefault(code, resp)
+        else:
+            paths[path][method] = op
+
+    server_obj = {"url": base_url}
+    spec = {
+        "openapi": "3.0.0",
+        "info": {"title": "Converted from Postman", "version": "1.0.0"},
+        "servers": [server_obj],
+        "paths": paths,
+    }
+    if schemes:
+        spec["components"] = {"securitySchemes": schemes}
+    if security:
+        spec["security"] = security
+    return spec
+
+# ---------------- CLI ----------------
+
+def parse_cli_vars(kvs: Optional[List[str]]) -> Dict[str, Any]:
+    out: Dict[str, Any] = {}
+    for kv in kvs or []:
+        if "=" in kv:
+            k, v = kv.split("=", 1)
+            out[k.strip()] = v.strip()
+    return out
+
 def main():
-    parser = argparse.ArgumentParser(description="Convert a Postman v2.1 collection to OpenAPI 3.0 Swagger (c) Perry Mertens 2025.")
-    parser.add_argument("--postman", required=True, help="Path to Postman .json file")
-    parser.add_argument("--output", default="openapi_output", help="Output file path WITHOUT extension (we add .json/.yaml)")
-    parser.add_argument("--open-ui", action="store_true", help="Open Swagger JSON in default browser")
-    parser.add_argument("--serve", action="store_true", help="Start a local web server to preview the file")
-    parser.add_argument("--zip", action="store_true", help="Create a ZIP of the Swagger file for download")
-    fmt = parser.add_mutually_exclusive_group()
-    fmt.add_argument("--json-only", action="store_true", help="Write only JSON output")
-    fmt.add_argument("--yaml-only", action="store_true", help="Write only YAML output")
-    parser.add_argument("--env", help="Optional Postman environment JSON file to load variables from")
-    args = parser.parse_args()
+    ap = argparse.ArgumentParser(description="Convert Postman collection to OpenAPI 3.0 (all-in-one)")
+    ap.add_argument("--postman", required=True, help="Path to Postman collection (v2.1)")
+    ap.add_argument("--env", help="Path to Postman environment (optional)")
+    ap.add_argument("--output", required=True, help="Output base path without extension")
+    ap.add_argument("--json-only", action="store_true", help="Write only JSON")
+    ap.add_argument("--yaml-only", action="store_true", help="Write only YAML")
+    ap.add_argument("--both", action="store_true", help="Write both JSON and YAML")
+    ap.add_argument("--folder", help="Only include folders containing this string (case-insensitive)")
+    ap.add_argument("--base-url", help="Override base URL (otherwise majority host is used)")
+    ap.add_argument("--var", action="append", help="Variable override key=value (repeatable)")
+    ap.add_argument("--strict", action="store_true", help="Fail if unresolved {{var}} remain in URLs/paths")
+    ap.add_argument("--log-level", default="INFO", choices=["DEBUG","INFO","WARNING","ERROR"])
+    args = ap.parse_args()
 
+    logging.basicConfig(level=getattr(logging, args.log_level), format="%(levelname)s: %(message)s")
+
+    coll = load_json(args.postman)
+    env = load_json(args.env) if args.env else None
+
+    ctx = VarContext(vars_from_collection(coll), vars_from_env(env), parse_cli_vars(args.var))
+    rows = collect_requests(coll, ctx, folder_filter=args.folder)
+    if not rows:
+        logging.error("No requests found in collection (after folder filter).")
+        sys.exit(2)
+
+    base_url = (args.base_url or detect_base_url(rows)).rstrip("/")
+    spec = build_spec(rows, base_url, strict=args.strict)
+
+    out_base = Path(args.output)
+    write_json = args.json_only or args.both or (not args.yaml_only and not args.json_only and not args.both)
+    write_yaml = args.yaml_only or args.both
+
+    if write_json:
+        out_json = out_base.with_suffix(".json")
+        out_json.parent.mkdir(parents=True, exist_ok=True)
+        with out_json.open("w", encoding="utf-8") as f:
+            json.dump(spec, f, indent=2, ensure_ascii=False)
+        logging.info("Wrote JSON: %s", str(out_json))
+
+    if write_yaml:
+        try:
+            import yaml
+            out_yaml = out_base.with_suffix(".yaml")
+            out_yaml.parent.mkdir(parents=True, exist_ok=True)
+            with out_yaml.open("w", encoding="utf-8") as f:
+                yaml.safe_dump(spec, f, sort_keys=False, allow_unicode=True)
+            logging.info("Wrote YAML: %s", str(out_yaml))
+        except Exception:
+            logging.error("PyYAML not installed; cannot write YAML.")
+
+    # Optional: validate
     try:
-        styled_print(f"Loading Postman collection: {args.postman}", "run")
-        builder = EnhancedSwaggerBuilder(postman_path=args.postman)
-
-        if args.env:
-            builder.load_environment_json(args.env)
-        # NEW: actually load the Postman environment (if provided)
-        if args.env:
-            builder.load_environment_json(args.env)
-
-        swagger_data = builder.convert_to_swagger()
-        swagger_data = enhance_swagger(swagger_data)
-
-        # NEW: final pass to dedupe params at path/operation level
-        swagger_data = process_openapi(swagger_data)
-
-        base_output = Path(args.output).resolve()
-        wrote_json = wrote_yaml = False
-
-        if not args.yaml_only:
-            json_path = base_output.with_suffix(".json")
-            with open(json_path, "w", encoding="utf-8") as f:
-                json.dump(swagger_data, f, indent=2, ensure_ascii=False)
-            styled_print(f"Swagger JSON saved to: {json_path}", "ok")
-            wrote_json = True
-
-        if not args.json_only:
-            try:
-                import yaml
-            except Exception:
-                styled_print("PyYAML not installed. Skipping YAML export.", "warn")
-            else:
-                yaml_path = base_output.with_suffix(".yaml")
-                with open(yaml_path, "w", encoding="utf-8") as yf:
-                    yaml.safe_dump(swagger_data, yf, sort_keys=False, allow_unicode=True)
-                styled_print(f"Swagger YAML saved to: {yaml_path}", "ok")
-                wrote_yaml = True
-
-        if args.zip:
-            if wrote_json:
-                zip_path = zip_output(base_output.with_suffix(".json"))
-            elif wrote_yaml:
-                zip_path = zip_output(base_output.with_suffix(".yaml"))
-            else:
-                zip_path = None
-            if zip_path:
-                styled_print(f"ZIP file created: {zip_path}", "ok")
-
-        if args.open_ui and wrote_json:
-            webbrowser.open(f"file://{base_output.with_suffix('.json')}")
-            styled_print("Swagger file opened in browser.", "info")
-
-        if args.serve and (wrote_json or wrote_yaml):
-            serve_file(base_output.with_suffix(".json" if wrote_json else ".yaml"))
-            styled_print("Press Ctrl+C to stop the server.", "warn")
-            while True:
-                time.sleep(1)
-
-    except KeyboardInterrupt:
-        styled_print("Interrupted by user.", "warn")
-        sys.exit(130)
+        from openapi_spec_validator import validate_spec
+        validate_spec(deepcopy(spec))
+        logging.info("OpenAPI validation: OK")
     except Exception as e:
-        styled_print(f"Conversion error: {e}", "fail")
-        sys.exit(1)
-
+        logging.warning("OpenAPI validation skipped or warnings: %s", e)
 
 if __name__ == "__main__":
     main()
