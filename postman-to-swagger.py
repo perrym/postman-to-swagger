@@ -1,6 +1,6 @@
 # APISCAN
 # 
-# Licensed under the MIT License. 
+# Licensed under the AGPL-3.0 License. 
 # Copyright (c) 2025 Perry Mertens
 #
 # postman-to-swagger_improved.py
