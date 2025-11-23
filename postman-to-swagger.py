@@ -1,36 +1,10 @@
-<<<<<<< HEAD
-# APISCAN
-# 
-# Licensed under the AGPL-3.0 License. 
-# Copyright (c) 2025 Perry Mertens
-#
-# postman-to-swagger_improved.py
-#
-# Key improvements vs. original:
-# - Fix: removed accidentally nested helper defs; no hidden duplicates
-# - Fix: normalize paths (:id, {{var}}) and always start with "/" (no trailing slashes)
-# - Fix: base URL extraction ensures scheme + host (e.g., https://api.example.com)
-# - Fix: Postman response headers parsing (list -> detect content-type)
-# - Fix: handles urlencoded & formdata bodies; better JSON detection in 'raw'
-# - Fix: promote inline schemas to #/components/schemas with stable refs
-# - Fix: deduplicate/auto-add missing path params; add header parameters (excl. Content-Type/Authorization)
-# - Enhancement: basic type inference for query/header params and examples
-# - Enhancement: uses package __version__ when available
-# - Enhancement: optional --yaml-only / --json-only / both (default both)
-# - Enhancement: consistent styled logging and exit codes
-#
-# Usage:
-#   python postman-to-swagger_improved.py --postman collection.json --output openapi_output --both --open-ui --serve --zip
-#
-=======
 #######################################################
 # APISCAN - POSTMAN to SWAGGER converter              #
-# Licensed under the MIT License                      #
+# Licensed under the AGPL-v3.0 License                      #
 # Author: Perry Mertens pamsniffer@gmail.com (c) 2025 #
 #######################################################
 from __future__ import annotations
 
->>>>>>> e251021d3aa3bb4ce031599fb682af264ea80e5b
 import argparse
 import json
 import logging
@@ -41,7 +15,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from urllib.parse import urlsplit, urlparse, parse_qsl
+from urllib.parse import urlsplit, parse_qsl
 
 # =====================================================
 # Postman → OpenAPI 3.0 converter (all-in-one edition)
@@ -61,8 +35,7 @@ from urllib.parse import urlsplit, urlparse, parse_qsl
 JSONLike = Dict[str, Any]
 PM_VAR = re.compile(r"{{\s*([A-Za-z0-9_.\-]+)\s*}}")
 
-SENSITIVE_HEADERS = {"authorization", "content-type"}
-HEADER_PARAM_DENYLIST = {"authorization"}  
+HEADER_PARAM_DENYLIST = {"authorization", "content-type"}
 
 def load_json(path: str | Path) -> JSONLike:
     with open(path, "r", encoding="utf-8") as f:
@@ -75,7 +48,6 @@ def strip_json_comments(s: str) -> str:
 
 def relaxed_json_parse(s: str) -> Tuple[Optional[Any], Optional[str]]:
     """Try parsing JSON after removing comments and trivial trailing commas."""
-    raw = s
     s = strip_json_comments(s)
     s = re.sub(r",\s*([}\]])", r"\1", s)
     try:
@@ -155,17 +127,63 @@ def json_to_schema(obj: Any) -> Dict[str, Any]:
         return {"type": "number"}
     return {"type": "string"}
 
-def build_request_body(raw: Any) -> Optional[Dict[str, Any]]:
+
+def build_request_body(raw: Any, mode: Optional[str] = None) -> Optional[Dict[str, Any]]:
     if raw is None:
         return None
+
     if isinstance(raw, dict):
-        return {"content": {"application/json": {"schema": json_to_schema(raw), "example": raw}}}
+        # Form-style bodies
+        if mode == "urlencoded":
+            return {
+                "content": {
+                    "application/x-www-form-urlencoded": {
+                        "schema": json_to_schema(raw),
+                        "example": raw,
+                    }
+                }
+            }
+        if mode == "formdata":
+            return {
+                "content": {
+                    "multipart/form-data": {
+                        "schema": json_to_schema(raw),
+                        "example": raw,
+                    }
+                }
+            }
+        # Default: JSON object
+        return {
+            "content": {
+                "application/json": {
+                    "schema": json_to_schema(raw),
+                    "example": raw,
+                }
+            }
+        }
+
     if isinstance(raw, str):
         data, err = relaxed_json_parse(raw)
         if err is None and data is not None:
-            return {"content": {"application/json": {"schema": json_to_schema(data), "example": data}}}
-        return {"content": {"text/plain": {"schema": {"type": "string"}, "example": raw}}}
+            return {
+                "content": {
+                    "application/json": {
+                        "schema": json_to_schema(data),
+                        "example": data,
+                    }
+                }
+            }
+        return {
+            "content": {
+                "text/plain": {
+                    "schema": {"type": "string"},
+                    "example": raw,
+                }
+            }
+        }
+
     return None
+
 
 def extract_query_params(url: str, pm_query_list: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
     u = urlsplit(url or "")
@@ -279,8 +297,10 @@ def parse_request(it: JSONLike, ctx: VarContext) -> Dict[str, Any]:
                     headers.append({"key": ctx.resolve(kv["key"]), "value": ctx.resolve(kv["value"])})
             if t == "basic" and {"username","password"} <= set(kv):
                 import base64
-                token = base64.b64encode(f"{kv['username']}:{kv['password']}".encode()).decode()
-                headers.append({"key":"Authorization","value":f"Basic {token}"})
+                user = ctx.resolve(kv["username"])
+                pwd = ctx.resolve(kv["password"])
+                token = base64.b64encode(f"{user}:{pwd}".encode()).decode()
+                headers.append({"key": "Authorization", "value": f"Basic {token}"})
 
     # Body
     body = req.get("body")
@@ -300,9 +320,10 @@ def parse_request(it: JSONLike, ctx: VarContext) -> Dict[str, Any]:
                     continue
                 k = ctx.resolve(p.get("key",""))
                 v = ctx.resolve(p.get("value",""))
-                if k: data[k] = v
+                if k:
+                    data[k] = v
             body_payload = data
-            body_mode = "form"
+            body_mode = "urlencoded"
         elif mode == "formdata":
             data = {}
             for p in body.get("formdata", []):
@@ -310,9 +331,10 @@ def parse_request(it: JSONLike, ctx: VarContext) -> Dict[str, Any]:
                     continue
                 k = ctx.resolve(p.get("key",""))
                 v = ctx.resolve(p.get("value",""))
-                if k: data[k] = v
+                if k:
+                    data[k] = v
             body_payload = data
-            body_mode = "form"
+            body_mode = "formdata"
 
     # Query params
     qparams = extract_query_params(url_raw, pm_query_list)
@@ -406,7 +428,7 @@ def build_spec(rows: List[Dict[str, Any]], base_url: str, strict: bool) -> Dict[
                 "404": {"description": "Not Found"},
             },
         }
-        rb = build_request_body(r.get("body"))
+        rb = build_request_body(r.get("body"), r.get("body_mode"))
         if rb:
             op["requestBody"] = rb
 
