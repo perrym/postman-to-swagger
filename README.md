@@ -1,4 +1,4 @@
-# Postman to Swagger Converter by Perry Mertens pamsniffer@gmail.com (C)2025
+# Postman to Swagger Converter by Perry Mertens pamsniffer@gmail.com license  AGPL-3.0  (C)2025
 
 This project converts a Postman v2.1 collection to an OpenAPI 3.0 spec and serves it with a lightweight web preview.
 
