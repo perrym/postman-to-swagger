@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import logging
 import re
@@ -38,11 +39,19 @@ PM_VAR = re.compile(r"{{\s*([A-Za-z0-9_.\-]+)\s*}}")
 HEADER_PARAM_DENYLIST = {"authorization", "content-type"}
 
 def load_json(path: str | Path) -> JSONLike:
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logging.error("File not found: %s", path)
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        logging.error("Invalid JSON in %s: %s", path, e)
+        sys.exit(1)
 
 def strip_json_comments(s: str) -> str:
-    s = re.sub(r"(?m)//.*?$", "", s)
+    # Negative lookbehind for ':' avoids stripping 'https://...' URL schemes
+    s = re.sub(r"(?m)(?<!:)//.*?$", "", s)
     s = re.sub(r"/\*.*?\*/", "", s, flags=re.S)
     return s
 
@@ -123,8 +132,12 @@ def json_to_schema(obj: Any) -> Dict[str, Any]:
         return {"type": "array", "items": json_to_schema(obj[0]) if obj else {}}
     if isinstance(obj, bool):
         return {"type": "boolean"}
-    if isinstance(obj, (int, float)):
+    if isinstance(obj, int):
+        return {"type": "integer"}
+    if isinstance(obj, float):
         return {"type": "number"}
+    if obj is None:
+        return {"nullable": True}
     return {"type": "string"}
 
 
@@ -187,7 +200,14 @@ def build_request_body(raw: Any, mode: Optional[str] = None) -> Optional[Dict[st
 
 def extract_query_params(url: str, pm_query_list: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
     u = urlsplit(url or "")
-    pairs = dict(parse_qsl(u.query, keep_blank_values=True))
+    pairs: Dict[str, Any] = {}
+    for k, v in parse_qsl(u.query, keep_blank_values=True):
+        if k not in pairs:
+            pairs[k] = v
+        elif isinstance(pairs[k], list):
+            pairs[k].append(v)
+        else:
+            pairs[k] = [pairs[k], v]
     for q in (pm_query_list or []):
         if q.get("disabled"):
             continue
@@ -296,7 +316,7 @@ def parse_request(it: JSONLike, ctx: VarContext) -> Dict[str, Any]:
                 if kv["in"] == "header":
                     headers.append({"key": ctx.resolve(kv["key"]), "value": ctx.resolve(kv["value"])})
             if t == "basic" and {"username","password"} <= set(kv):
-                import base64
+
                 user = ctx.resolve(kv["username"])
                 pwd = ctx.resolve(kv["password"])
                 token = base64.b64encode(f"{user}:{pwd}".encode()).decode()
@@ -360,8 +380,8 @@ def parse_request(it: JSONLike, ctx: VarContext) -> Dict[str, Any]:
                     }
             else:
                 oas_responses[code] = {"description": desc}
-        except Exception:
-            pass
+        except Exception as e:
+            logging.debug("Skipping invalid response example for %s: %s", name, e)
 
     return {
         "name": name,
@@ -375,13 +395,22 @@ def parse_request(it: JSONLike, ctx: VarContext) -> Dict[str, Any]:
         "responses": oas_responses,
     }
 
+def _find_folders(items: List[JSONLike], folder_filter: str) -> List[JSONLike]:
+    """Recursively collect top-level matched folder items."""
+    found = []
+    for it in items or []:
+        if folder_filter in (it.get("name", "").lower()):
+            found.append(it)
+        elif "item" in it:
+            found.extend(_find_folders(it["item"], folder_filter))
+    return found
+
 def collect_requests(coll: JSONLike, ctx: VarContext, folder_filter: Optional[str]) -> List[Dict[str, Any]]:
     items = coll.get("item", [])
     if folder_filter:
-        picked = []
-        for it in items:
-            if folder_filter.lower() in (it.get("name","").lower()):
-                picked.append(it)
+        picked = _find_folders(items, folder_filter.lower())
+        if not picked:
+            logging.warning("Folder filter %r matched no folders; using full collection.", folder_filter)
         items = picked or items
     out = []
     for it in iter_items(items):
@@ -389,7 +418,11 @@ def collect_requests(coll: JSONLike, ctx: VarContext, folder_filter: Optional[st
     return out
 
 def detect_base_url(rows: List[Dict[str, Any]]) -> str:
-    hosts = [f"{urlsplit(r['url']).scheme}://{urlsplit(r['url']).netloc}" for r in rows if r.get("url")]
+    hosts = [
+        f"{urlsplit(r['url']).scheme}://{urlsplit(r['url']).netloc}"
+        for r in rows
+        if r.get("url") and urlsplit(r["url"]).netloc
+    ]
     if not hosts:
         return "https://api.example.com"
     return Counter(hosts).most_common(1)[0][0]
@@ -406,6 +439,9 @@ def build_spec(rows: List[Dict[str, Any]], base_url: str, strict: bool) -> Dict[
         raw_path = u.path or "/"
         path = normalize_path(raw_path)
         method = r["method"].lower()
+        if method not in {"get", "put", "post", "delete", "options", "head", "patch", "trace"}:
+            logging.warning("Skipping unsupported HTTP method %r for %s", r["method"], r.get("url"))
+            continue
 
         if strict and (is_unresolved(r["url"]) or is_unresolved(path)):
             raise ValueError(f"Unresolved variable in URL/path: {r['url']}")
@@ -487,6 +523,10 @@ def main():
     ap.add_argument("--log-level", default="INFO", choices=["DEBUG","INFO","WARNING","ERROR"])
     args = ap.parse_args()
 
+    output_modes = [args.json_only, args.yaml_only, args.both]
+    if sum(bool(v) for v in output_modes) > 1:
+        ap.error("Use only one output mode: --json-only, --yaml-only, or --both.")
+
     logging.basicConfig(level=getattr(logging, args.log_level), format="%(levelname)s: %(message)s")
 
     coll = load_json(args.postman)
@@ -499,7 +539,11 @@ def main():
         sys.exit(2)
 
     base_url = (args.base_url or detect_base_url(rows)).rstrip("/")
-    spec = build_spec(rows, base_url, strict=args.strict)
+    try:
+        spec = build_spec(rows, base_url, strict=args.strict)
+    except ValueError as e:
+        logging.error(str(e))
+        sys.exit(2)
 
     out_base = Path(args.output)
     write_json = args.json_only or args.both or (not args.yaml_only and not args.json_only and not args.both)
