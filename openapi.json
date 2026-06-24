@@ -1,0 +1,7434 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Converted from Postman",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://{{api_host}}"
+    }
+  ],
+  "paths": {
+    "/token": {
+      "post": {
+        "operationId": "auth_post_token",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "grant_type": {
+                    "type": "string"
+                  },
+                  "scope": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "grant_type": "client_credentials",
+                "scope": "apim:api_create"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/customer/v2/customers": {
+      "post": {
+        "operationId": "customers_post_module_customer_v2_customers",
+        "tags": [
+          "Customers"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 123,
+                  "status": "created"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "created": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "example": {
+                "id": 0,
+                "name": "Customer-name",
+                "created": true
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "customers_get_module_customer_v2_customers",
+        "tags": [
+          "Customers"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "25"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "smith"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1
+                    },
+                    {
+                      "id": 2
+                    }
+                  ],
+                  "total": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/customer/v2/customers/{id}": {
+      "get": {
+        "operationId": "customers_get_module_customer_v2_customers_id",
+        "tags": [
+          "Customers"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "name": "foo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "customers_put_module_customer_v2_customers_id",
+        "tags": [
+          "Customers"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "updated": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "updated": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "name": "Customer-updated"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "customers_patch_module_customer_v2_customers_id",
+        "tags": [
+          "Customers"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "patched": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "patched": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "status": "inactive"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "customers_delete_module_customer_v2_customers_id",
+        "tags": [
+          "Customers"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": ""
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/policy/v2/1005/policies": {
+      "post": {
+        "operationId": "policies_post_module_policy_v2_1005_policies",
+        "tags": [
+          "Policies"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 123,
+                  "status": "created"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "created": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "example": {
+                "id": 0,
+                "name": "Policie-name",
+                "created": true
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "policies_get_module_policy_v2_1005_policies",
+        "tags": [
+          "Policies"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "25"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "smith"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1
+                    },
+                    {
+                      "id": 2
+                    }
+                  ],
+                  "total": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/policy/v2/1005/policies/{id}": {
+      "get": {
+        "operationId": "policies_get_module_policy_v2_1005_policies_id",
+        "tags": [
+          "Policies"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "name": "foo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "policies_put_module_policy_v2_1005_policies_id",
+        "tags": [
+          "Policies"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "updated": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "updated": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "name": "Policie-updated"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "policies_patch_module_policy_v2_1005_policies_id",
+        "tags": [
+          "Policies"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "patched": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "patched": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "status": "inactive"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "policies_delete_module_policy_v2_1005_policies_id",
+        "tags": [
+          "Policies"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": ""
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/claim/v2/1005/policies/{policyId}/claims": {
+      "post": {
+        "operationId": "claims_post_module_claim_v2_1005_policies_policyid_claims",
+        "tags": [
+          "Claims"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 123,
+                  "status": "created"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "created": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "example": {
+                "id": 0,
+                "name": "Claim-name",
+                "created": true
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "claims_get_module_claim_v2_1005_policies_policyid_claims",
+        "tags": [
+          "Claims"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "25"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "smith"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1
+                    },
+                    {
+                      "id": 2
+                    }
+                  ],
+                  "total": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/claim/v2/1005/policies/{policyId}/claims/{id}": {
+      "get": {
+        "operationId": "claims_get_module_claim_v2_1005_policies_policyid_claims_id",
+        "tags": [
+          "Claims"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "name": "foo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "claims_put_module_claim_v2_1005_policies_policyid_claims_id",
+        "tags": [
+          "Claims"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "updated": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "updated": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "name": "Claim-updated"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "claims_patch_module_claim_v2_1005_policies_policyid_claims_id",
+        "tags": [
+          "Claims"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "patched": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "patched": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "status": "inactive"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "claims_delete_module_claim_v2_1005_policies_policyid_claims_id",
+        "tags": [
+          "Claims"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": ""
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/quotation/v2/1005/quotations": {
+      "post": {
+        "operationId": "quotations_post_module_quotation_v2_1005_quotations",
+        "tags": [
+          "Quotations"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 123,
+                  "status": "created"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "created": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "example": {
+                "id": 0,
+                "name": "Quotation-name",
+                "created": true
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "quotations_get_module_quotation_v2_1005_quotations",
+        "tags": [
+          "Quotations"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "25"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "smith"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1
+                    },
+                    {
+                      "id": 2
+                    }
+                  ],
+                  "total": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/quotation/v2/1005/quotations/{id}": {
+      "get": {
+        "operationId": "quotations_get_module_quotation_v2_1005_quotations_id",
+        "tags": [
+          "Quotations"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "name": "foo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "quotations_put_module_quotation_v2_1005_quotations_id",
+        "tags": [
+          "Quotations"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "updated": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "updated": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "name": "Quotation-updated"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "quotations_patch_module_quotation_v2_1005_quotations_id",
+        "tags": [
+          "Quotations"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "patched": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "patched": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "status": "inactive"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "quotations_delete_module_quotation_v2_1005_quotations_id",
+        "tags": [
+          "Quotations"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": ""
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/documents/v1/policies/{policyId}/claims/{claimId}/documents": {
+      "post": {
+        "operationId": "documents_post_module_documents_v1_policies_policyid_claims_claimid_documents",
+        "tags": [
+          "Documents",
+          "Special"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 123,
+                  "status": "created"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "created": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "example": {
+                "id": 0,
+                "name": "Document-name",
+                "created": true
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "documents_get_module_documents_v1_policies_policyid_claims_claimid_documents",
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "25"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "smith"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1
+                    },
+                    {
+                      "id": 2
+                    }
+                  ],
+                  "total": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/documents/v1/policies/{policyId}/claims/{claimId}/documents/{id}": {
+      "get": {
+        "operationId": "documents_get_module_documents_v1_policies_policyid_claims_claimid_documents_id",
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "name": "foo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "documents_put_module_documents_v1_policies_policyid_claims_claimid_documents_id",
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "updated": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "updated": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "name": "Document-updated"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "documents_patch_module_documents_v1_policies_policyid_claims_claimid_documents_id",
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "patched": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "patched": true
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "status": "inactive"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "documents_delete_module_documents_v1_policies_policyid_claims_claimid_documents_id",
+        "tags": [
+          "Documents"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": ""
+              }
+            }
+          }
+        }
+      }
+    },
+    "/module/business/v2/rates/exchange": {
+      "post": {
+        "operationId": "special_post_module_business_v2_rates_exchange",
+        "tags": [
+          "Special"
+        ],
+        "parameters": [
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "base": {
+                      "type": "string"
+                    },
+                    "rates": {
+                      "type": "object",
+                      "properties": {
+                        "USD": {
+                          "type": "number"
+                        },
+                        "GBP": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "base": "EUR",
+                  "rates": {
+                    "USD": 1.07,
+                    "GBP": 0.86
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "base": {
+                    "type": "string"
+                  },
+                  "symbols": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "base": "EUR",
+                "symbols": "USD,GBP"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ping": {
+      "get": {
+        "operationId": "special_get_ping",
+        "tags": [
+          "Special"
+        ],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "pong"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/1": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_1",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term1"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 1,
+                  "ok": true,
+                  "i": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/2": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_2",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term2"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 2,
+                  "ok": true,
+                  "i": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/3": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_3",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term3"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "4"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 3,
+                  "ok": true,
+                  "i": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/4": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_4",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term4"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "5"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 4,
+                  "ok": true,
+                  "i": 4
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/5": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_5",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term5"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "6"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 5,
+                  "ok": true,
+                  "i": 5
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/6": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_6",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term6"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "7"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 6,
+                  "ok": true,
+                  "i": 6
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/7": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_7",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term7"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "8"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 7,
+                  "ok": true,
+                  "i": 7
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/8": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_8",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term8"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "9"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 8,
+                  "ok": true,
+                  "i": 8
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/9": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_9",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term9"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "10"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 9,
+                  "ok": true,
+                  "i": 9
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/10": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_10",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term10"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 10,
+                  "ok": true,
+                  "i": 10
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/11": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_11",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term11"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 11,
+                  "ok": true,
+                  "i": 11
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/12": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_12",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term12"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 12,
+                  "ok": true,
+                  "i": 12
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/13": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_13",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term13"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "4"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 13,
+                  "ok": true,
+                  "i": 13
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/14": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_14",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term14"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "5"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 14,
+                  "ok": true,
+                  "i": 14
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/15": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_15",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term15"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "6"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 15,
+                  "ok": true,
+                  "i": 15
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/16": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_16",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term16"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "7"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 16,
+                  "ok": true,
+                  "i": 16
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/17": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_17",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term17"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "8"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 17,
+                  "ok": true,
+                  "i": 17
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/18": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_18",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term18"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "9"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 18,
+                  "ok": true,
+                  "i": 18
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/19": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_19",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term19"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "10"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 19,
+                  "ok": true,
+                  "i": 19
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/20": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_20",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term20"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 20,
+                  "ok": true,
+                  "i": 20
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/21": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_21",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term21"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 21,
+                  "ok": true,
+                  "i": 21
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/22": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_22",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term22"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 22,
+                  "ok": true,
+                  "i": 22
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/23": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_23",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term23"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "4"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 23,
+                  "ok": true,
+                  "i": 23
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/24": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_24",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term24"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "5"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 24,
+                  "ok": true,
+                  "i": 24
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/25": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_25",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term25"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "6"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 25,
+                  "ok": true,
+                  "i": 25
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/26": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_26",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term26"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "7"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 26,
+                  "ok": true,
+                  "i": 26
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/27": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_27",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term27"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "8"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 27,
+                  "ok": true,
+                  "i": 27
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/28": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_28",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term28"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "9"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 28,
+                  "ok": true,
+                  "i": 28
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/29": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_29",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term29"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "10"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 29,
+                  "ok": true,
+                  "i": 29
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/30": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_30",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term30"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 30,
+                  "ok": true,
+                  "i": 30
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/31": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_31",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term31"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 31,
+                  "ok": true,
+                  "i": 31
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/32": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_32",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term32"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 32,
+                  "ok": true,
+                  "i": 32
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/33": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_33",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term33"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "4"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 33,
+                  "ok": true,
+                  "i": 33
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/34": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_34",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term34"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "5"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 34,
+                  "ok": true,
+                  "i": 34
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/35": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_35",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term35"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "6"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 35,
+                  "ok": true,
+                  "i": 35
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/36": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_36",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term36"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "7"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 36,
+                  "ok": true,
+                  "i": 36
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/37": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_37",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term37"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "8"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 37,
+                  "ok": true,
+                  "i": 37
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/38": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_38",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term38"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "9"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 38,
+                  "ok": true,
+                  "i": 38
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/39": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_39",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term39"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "10"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 39,
+                  "ok": true,
+                  "i": 39
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/40": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_40",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term40"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 40,
+                  "ok": true,
+                  "i": 40
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/41": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_41",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term41"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 41,
+                  "ok": true,
+                  "i": 41
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/42": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_42",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term42"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 42,
+                  "ok": true,
+                  "i": 42
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/43": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_43",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term43"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "4"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 43,
+                  "ok": true,
+                  "i": 43
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/44": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_44",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term44"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "5"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 44,
+                  "ok": true,
+                  "i": 44
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/45": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_45",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term45"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "6"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 45,
+                  "ok": true,
+                  "i": 45
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/46": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_46",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term46"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "7"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 46,
+                  "ok": true,
+                  "i": 46
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/47": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_47",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term47"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "8"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 47,
+                  "ok": true,
+                  "i": 47
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/48": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_48",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term48"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "9"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 48,
+                  "ok": true,
+                  "i": 48
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/49": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_49",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term49"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "10"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 49,
+                  "ok": true,
+                  "i": 49
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/50": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_50",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term50"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 50,
+                  "ok": true,
+                  "i": 50
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/51": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_51",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term51"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "2"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 51,
+                  "ok": true,
+                  "i": 51
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/52": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_52",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term52"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "3"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 52,
+                  "ok": true,
+                  "i": 52
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/53": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_53",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term53"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "4"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 53,
+                  "ok": true,
+                  "i": 53
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/54": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_54",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term54"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "5"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 54,
+                  "ok": true,
+                  "i": 54
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/55": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_55",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term55"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "6"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 55,
+                  "ok": true,
+                  "i": 55
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/56": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_56",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term56"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "7"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 56,
+                  "ok": true,
+                  "i": 56
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/57": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_57",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term57"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "8"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 57,
+                  "ok": true,
+                  "i": 57
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/58": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_58",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term58"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "9"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 58,
+                  "ok": true,
+                  "i": 58
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/59": {
+      "get": {
+        "operationId": "bulktest_get_bulk_v1_items_59",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term59"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "10"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 59,
+                  "ok": true,
+                  "i": 59
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bulk/v1/items/60": {
+      "post": {
+        "operationId": "bulktest_post_bulk_v1_items_60",
+        "tags": [
+          "BulkTest"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "term60"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "x-jwt-assertion",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{x-jwt-assertion}}"
+          },
+          {
+            "name": "X-Xbba-Vendor",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "{{bu}}"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "ok": {
+                      "type": "boolean"
+                    },
+                    "i": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "example": {
+                  "id": 60,
+                  "ok": true,
+                  "i": 60
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    },
+    {
+      "basicAuth": []
+    }
+  ]
+}

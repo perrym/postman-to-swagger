@@ -1,8 +1,10 @@
-#######################################################
-# APISCAN - POSTMAN to SWAGGER converter              #
-# Licensed under the AGPL-v3.0 License                      #
-# Author: Perry Mertens pamsniffer@gmail.com (c) 2025 #
-#######################################################
+########################################################
+# APISCAN - POSTMAN to SWAGGER converter               #
+# Licensed under the AGPL-v3.0                         #
+# Author: Perry Mertens pamsniffer@gmail.com (C) 2026  #
+# version 5.0 24-06-2026                               #
+########################################################
+
 from __future__ import annotations
 
 import argparse
@@ -36,7 +38,7 @@ from urllib.parse import urlsplit, parse_qsl
 JSONLike = Dict[str, Any]
 PM_VAR = re.compile(r"{{\s*([A-Za-z0-9_.\-]+)\s*}}")
 
-HEADER_PARAM_DENYLIST = {"authorization", "content-type"}
+HEADER_PARAM_DENYLIST = {"authorization", "content-type", "x-api-key", "apikey", "api-key"}
 
 def load_json(path: str | Path) -> JSONLike:
     try:
@@ -117,8 +119,8 @@ def normalize_path(raw_path: str) -> str:
     def repl(m: re.Match) -> str:
         return "/{%s}" % m.group(1)
     p = re.sub(r"/:([A-Za-z0-9_]+)", repl, raw_path)
-    # {{var}} → {var}
-    p = p.replace("{{", "{").replace("}}", "}")
+    # {{var}} → {var} (only in path segments, not query strings)
+    p = PM_VAR.sub(lambda m: "{%s}" % m.group(1), p)
     # collapse //
     p = re.sub(r"//+", "/", p)
     if not p.startswith("/"):
@@ -137,7 +139,7 @@ def json_to_schema(obj: Any) -> Dict[str, Any]:
     if isinstance(obj, float):
         return {"type": "number"}
     if obj is None:
-        return {"nullable": True}
+        return {}  # any type, including null
     return {"type": "string"}
 
 
@@ -258,12 +260,15 @@ def infer_security_from_headers(all_headers: List[Dict[str, str]]) -> Tuple[Dict
         security.append({"apiKeyHeader": []})
     return schemes, security
 
-def iter_items(items: List[JSONLike] | None):
+def iter_items(items: List[JSONLike] | None, parent_tags: Optional[List[str]] = None):
+    """Yield (item, tags) tuples where tags include parent folder names."""
     for it in items or []:
+        folder_name = it.get("name", "")
+        current_tags = (parent_tags or []) + ([folder_name] if folder_name and "item" in it else [])
         if "item" in it:
-            yield from iter_items(it["item"])
+            yield from iter_items(it["item"], current_tags)
         elif "request" in it:
-            yield it
+            yield it, current_tags
 
 def parse_request(it: JSONLike, ctx: VarContext) -> Dict[str, Any]:
     req = it.get("request", {})
@@ -413,8 +418,12 @@ def collect_requests(coll: JSONLike, ctx: VarContext, folder_filter: Optional[st
             logging.warning("Folder filter %r matched no folders; using full collection.", folder_filter)
         items = picked or items
     out = []
-    for it in iter_items(items):
-        out.append(parse_request(it, ctx))
+    for it, folder_tags in iter_items(items):
+        req = parse_request(it, ctx)
+        if folder_tags:
+            req["tag"] = folder_tags[0]  # use closest folder as primary tag
+            req["folder_tags"] = folder_tags
+        out.append(req)
     return out
 
 def detect_base_url(rows: List[Dict[str, Any]]) -> str:
@@ -453,9 +462,10 @@ def build_spec(rows: List[Dict[str, Any]], base_url: str, strict: bool) -> Dict[
             ded[(p["name"], p["in"])] = p
         params = list(ded.values())
 
+        tags = r.get("folder_tags") or [r.get("tag") or "postman"]
         op = {
-            "operationId": f"{slug(r.get('tag'))}_{method}_{slug(path)}",
-            "tags": [r.get("tag") or "postman"],
+            "operationId": f"{slug(tags[0])}_{method}_{slug(path)}",
+            "tags": tags,
             "parameters": params,
             "responses": r.get("responses") or {
                 "200": {"description": "OK"},
@@ -481,7 +491,10 @@ def build_spec(rows: List[Dict[str, Any]], base_url: str, strict: bool) -> Dict[
                 prev["requestBody"] = op["requestBody"]
             
             for code, resp in (op.get("responses") or {}).items():
-                prev.setdefault("responses", {}).setdefault(code, resp)
+                existing = prev.setdefault("responses", {})
+                # Prefer response with content (e.g. example) over bare description
+                if code not in existing or ("content" in resp and "content" not in existing.get(code, {})):
+                    existing[code] = resp
         else:
             paths[path][method] = op
 
@@ -497,6 +510,90 @@ def build_spec(rows: List[Dict[str, Any]], base_url: str, strict: bool) -> Dict[
     if security:
         spec["security"] = security
     return spec
+
+# ---------------- Serve / Preview ----------------
+
+_SWAGGER_HTML = r"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Swagger UI</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+  <style>html{box-sizing:border-box;overflow-y:scroll}*,*:before,*:after{box-sizing:inherit}body{margin:0}.topbar{display:none}</style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-standalone-preset.js" crossorigin="anonymous"></script>
+  <script>
+    window.onload=function(){
+      var p=new URLSearchParams(location.search);
+      SwaggerUIBundle({url:p.get("spec")||"openapi.json",dom_id:"#swagger-ui",deepLinking:!0,
+        presets:[SwaggerUIBundle.presets.apis,SwaggerUIStandalonePreset],
+        plugins:[SwaggerUIBundle.plugins.DownloadUrl],layout:"StandaloneLayout",
+        defaultModelsExpandDepth:-1,docExpansion:"list"})};
+  </script>
+</body>
+</html>"""
+
+
+def _serve_preview(out_base: Path, spec: Dict[str, Any], port: int) -> None:
+    """Write Swagger UI page, start HTTP server, and open browser."""
+    import threading
+    import webbrowser
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+    output_dir = out_base.parent.resolve()
+
+    # Ensure JSON spec exists for the preview
+    spec_file = out_base.with_suffix(".json")
+    if not spec_file.is_file():
+        with spec_file.open("w", encoding="utf-8") as f:
+            json.dump(spec, f, indent=2, ensure_ascii=False)
+
+    # Write Swagger UI preview page
+    preview_path = output_dir / "_preview.html"
+    preview_path.write_text(_SWAGGER_HTML, encoding="utf-8")
+
+    # Find available port
+    import socket
+    for p in range(port, port + 20):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(("127.0.0.1", p))
+                port = p
+                break
+        except OSError:
+            continue
+
+    class Handler(SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=str(output_dir), **kwargs)
+        def log_message(self, fmt, *args):
+            pass
+
+    def run():
+        httpd = HTTPServer(("127.0.0.1", port), Handler)
+        print(f"\n  Swagger UI: http://127.0.0.1:{port}/_preview.html?spec={spec_file.name}")
+        print("  Press Ctrl+C to stop.\n")
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            httpd.shutdown()
+
+    threading.Thread(target=run, daemon=True).start()
+    url = f"http://127.0.0.1:{port}/_preview.html?spec={spec_file.name}"
+    webbrowser.open(url)
+
+    # Keep main thread alive
+    try:
+        while True:
+            import time
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nServer stopped.")
+
 
 # ---------------- CLI ----------------
 
@@ -521,6 +618,9 @@ def main():
     ap.add_argument("--var", action="append", help="Variable override key=value (repeatable)")
     ap.add_argument("--strict", action="store_true", help="Fail if unresolved {{var}} remain in URLs/paths")
     ap.add_argument("--log-level", default="INFO", choices=["DEBUG","INFO","WARNING","ERROR"])
+    ap.add_argument("--serve", action="store_true", help="Start a local HTTP server with Swagger UI preview")
+    ap.add_argument("--open-ui", action="store_true", help="Open the generated spec in your default browser")
+    ap.add_argument("--port", type=int, default=8000, help="Port for --serve (default: 8000)")
     args = ap.parse_args()
 
     output_modes = [args.json_only, args.yaml_only, args.both]
@@ -574,6 +674,17 @@ def main():
         logging.info("OpenAPI validation: OK")
     except Exception as e:
         logging.warning("OpenAPI validation skipped or warnings: %s", e)
+
+    # Optional: open in browser
+    if args.open_ui:
+        import webbrowser
+        out_json = out_base.with_suffix(".json")
+        webbrowser.open(out_json.resolve().as_uri())
+        logging.info("Opened %s in browser.", out_json.name)
+
+    # Optional: serve with Swagger UI
+    if args.serve:
+        _serve_preview(out_base, spec, args.port)
 
 if __name__ == "__main__":
     main()
